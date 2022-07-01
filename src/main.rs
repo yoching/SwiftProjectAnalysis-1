@@ -1,8 +1,8 @@
 use clap::Parser;
 use glob::*;
 use std::fs::File;
-use std::io::{self, BufRead};
-use tabled::{object::Columns, Alignment, Modify, Style, Table, Tabled};
+use std::io::Read;
+use tabled::{object::Columns, Alignment, Modify, Style, Table, TableIteratorExt, Tabled};
 
 /// Simple project analyzation
 #[derive(Parser, Debug)]
@@ -16,6 +16,12 @@ struct Args {
 struct FileAnalysis {
     name: String,
     length: usize,
+}
+
+#[derive(Tabled)]
+struct ElementsCount<'a> {
+    element: &'a str,
+    count: usize,
 }
 
 fn main() {
@@ -35,13 +41,35 @@ fn main() {
 
     let mut files: Vec<FileAnalysis> = Vec::new();
 
+    let mut number_of_structs: usize = 0;
+    let mut number_of_classes: usize = 0;
+    let mut number_of_enums: usize = 0;
+
     for entry in entries {
-        let file = File::open(entry.clone()).unwrap();
-        let lines = io::BufReader::new(file).lines();
+        let mut file = File::open(entry.clone()).unwrap();
         let relative_path = entry.strip_prefix(&root_path).unwrap();
+
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+
+        let mut number_of_lines: usize = 0;
+
+        for line in contents.lines() {
+            if line.contains("struct ") {
+                number_of_structs += 1;
+            }
+            if line.contains("class ") {
+                number_of_classes += 1;
+            }
+            if line.contains("enum ") {
+                number_of_enums += 1;
+            }
+            number_of_lines += 1;
+        }
+
         let analysis = FileAnalysis {
             name: relative_path.to_string_lossy().to_string(),
-            length: lines.count(),
+            length: number_of_lines,
         };
         files.push(analysis);
     }
@@ -56,4 +84,26 @@ fn main() {
 
     println!("\n## Files");
     println!("{}", table);
+
+    let analytics: Vec<ElementsCount> = vec![
+        ElementsCount {
+            element: "struct",
+            count: number_of_structs,
+        },
+        ElementsCount {
+            element: "class",
+            count: number_of_classes,
+        },
+        ElementsCount {
+            element: "enum",
+            count: number_of_enums,
+        },
+    ];
+    let analytics_table = analytics
+        .table()
+        .with(Style::psql())
+        .with(Modify::new(Columns::first()).with(Alignment::left()))
+        .with(Modify::new(Columns::last()).with(Alignment::right()));
+    println!("\n## Analytics");
+    println!("{}", analytics_table.to_string());
 }
