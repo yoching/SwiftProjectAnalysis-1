@@ -44,27 +44,36 @@ fn main() {
     let mut number_of_structs: usize = 0;
     let mut number_of_classes: usize = 0;
     let mut number_of_enums: usize = 0;
+    let mut number_of_functions: usize = 0;
 
     for entry in entries {
         let mut file = File::open(entry.clone()).unwrap();
         let relative_path = entry.strip_prefix(&root_path).unwrap();
 
+        let ast = project_analysis::get_ast(entry.to_str().expect("File path is not valid"))
+            .map(String::from_utf8)
+            .expect("invalid ast")
+            .expect("invalid ast");
+        // println!("{:?}", ast);
+
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
 
-        let mut number_of_lines: usize = 0;
+        let number_of_lines: usize = contents.lines().count();
 
-        for line in contents.lines() {
-            if line.contains("struct ") {
+        for line in ast.lines() {
+            if line.contains("struct_decl") {
                 number_of_structs += 1;
             }
-            if line.contains("class ") {
+            if line.contains("class_decl") {
                 number_of_classes += 1;
             }
-            if line.contains("enum ") {
+            if line.contains("enum_decl") {
                 number_of_enums += 1;
             }
-            number_of_lines += 1;
+            if line.contains("func_decl") {
+                number_of_functions += 1;
+            }
         }
 
         let analysis = FileAnalysis {
@@ -97,6 +106,10 @@ fn main() {
         ElementsCount {
             element: "enum",
             count: number_of_enums,
+        },
+        ElementsCount {
+            element: "functions",
+            count: number_of_functions,
         },
     ];
     let analytics_table = analytics
