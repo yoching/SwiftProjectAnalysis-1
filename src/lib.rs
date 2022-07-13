@@ -58,6 +58,7 @@ pub fn run(args: Args) -> io::Result<()> {
     println!("\n## File stats");
     println!("{}", file_stats_table);
 
+    open::that("http://127.0.0.1:8080/");
     web::start_http_server()
 }
 
