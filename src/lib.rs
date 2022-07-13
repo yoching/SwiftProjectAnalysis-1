@@ -25,14 +25,9 @@ pub struct Args {
 struct FileAnalysis {
     name: String,
     length: usize,
-}
-
-pub fn get_ast(file: &str) -> io::Result<Vec<u8>> {
-    Command::new("swiftc")
-        .arg("-dump-parse")
-        .arg(file)
-        .output()
-        .map(|i| i.stdout)
+    struct_count: usize,
+    class_count: usize,
+    enum_count: usize,
 }
 
 pub fn run(args: Args) -> io::Result<()> {
@@ -63,9 +58,6 @@ pub fn run(args: Args) -> io::Result<()> {
     println!("\n## File stats");
     println!("{}", file_stats_table);
 
-    // Analysis
-    for entry in &swift_file_paths {}
-
     web::start_http_server()
 }
 
@@ -88,14 +80,36 @@ fn make_file_stats(file_path: &PathBuf, root_path: &str) -> FileAnalysis {
         .read_to_string(&mut contents)
         .unwrap();
 
+    let name = file_path
+        .strip_prefix(root_path)
+        .unwrap()
+        .to_string_lossy()
+        .to_string();
+
+    let ast = get_ast(file_path.to_str().expect("File path is not valid"))
+        .map(String::from_utf8)
+        .expect("invalid ast")
+        .expect("invalid ast");
+
+    let struct_count = ast.matches("struct_decl").count();
+    let class_count = ast.matches("class_decl").count();
+    let enum_count = ast.matches("enum_decl").count();
+
     FileAnalysis {
-        name: file_path
-            .strip_prefix(root_path)
-            .unwrap()
-            .to_string_lossy()
-            .to_string(),
+        name: name,
         length: contents.lines().count(),
+        struct_count: struct_count,
+        class_count: class_count,
+        enum_count: enum_count,
     }
+}
+
+pub fn get_ast(file: &str) -> io::Result<Vec<u8>> {
+    Command::new("swiftc")
+        .arg("-dump-parse")
+        .arg(file)
+        .output()
+        .map(|i| i.stdout)
 }
 
 // #[cfg(test)]
