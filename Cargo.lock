@@ -388,7 +388,9 @@ dependencies = [
  "encode_unicode",
  "libc",
  "once_cell",
+ "regex",
  "terminal_size",
+ "unicode-width",
  "winapi",
 ]
 
@@ -940,6 +942,7 @@ dependencies = [
  "actix-files",
  "actix-web",
  "clap",
+ "console",
  "glob",
  "indicatif",
  "open",

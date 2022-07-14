@@ -11,6 +11,7 @@ use tabled::{object::Columns, Alignment, Modify, Style, Table, Tabled};
 
 use serde::Serialize;
 
+use console::{style, Emoji};
 use indicatif::ProgressIterator;
 
 mod web;
@@ -21,6 +22,14 @@ pub struct Args {
     /// Path of root directory to analyze
     #[clap(short, long, value_parser, default_value = "./")]
     pub path: std::path::PathBuf,
+
+    /// Without analysis. Only run server.
+    #[clap(long, action)]
+    pub without_analysis: bool,
+
+    /// output to console
+    #[clap(long, action)]
+    pub console_output: bool,
 }
 
 #[derive(Tabled, Serialize)]
@@ -32,14 +41,38 @@ struct FileAnalysis {
     enum_count: usize,
 }
 
+static LOOKING_GLASS: Emoji<'_, '_> = Emoji("🔍  ", "");
+static MICROSCOPE: Emoji<'_, '_> = Emoji("🔬  ", "");
+static SERVER: Emoji<'_, '_> = Emoji("💻  ", "");
+
 pub fn run(args: Args) -> io::Result<()> {
+    if args.without_analysis {
+        println!(
+            "{} {}Launching web server... Open http://127.0.0.1:8080/",
+            style("[1/1]").bold().dim(),
+            SERVER
+        );
+        return web::start_http_server();
+    }
+
     let root_path = args.path.to_string_lossy().to_string();
+
+    println!(
+        "{} {}Searching Swift files...",
+        style("[1/4]").bold().dim(),
+        LOOKING_GLASS
+    );
 
     let swift_file_paths = search_swift_files(&root_path);
 
     // number of files
-    println!("## Summary");
-    println!("{} files found", swift_file_paths.len());
+    println!("      {} files found", swift_file_paths.len());
+
+    println!(
+        "{} {}Analyzing files...",
+        style("[2/4]").bold().dim(),
+        MICROSCOPE
+    );
 
     // File stats
     let mut file_stats: Vec<FileAnalysis> = swift_file_paths
@@ -50,18 +83,25 @@ pub fn run(args: Args) -> io::Result<()> {
 
     serde_json::to_writer_pretty(&fs::File::create("web/file_stats.json")?, &file_stats)?;
 
-    file_stats.sort_by(|a, b| b.length.cmp(&a.length));
+    if args.console_output {
+        file_stats.sort_by(|a, b| b.length.cmp(&a.length));
 
-    let file_stats_table = Table::new(&file_stats)
-        .with(Style::psql())
-        .with(Modify::new(Columns::first()).with(Alignment::left()))
-        .with(Modify::new(Columns::last()).with(Alignment::right()))
-        .to_string();
+        let file_stats_table = Table::new(&file_stats)
+            .with(Style::psql())
+            .with(Modify::new(Columns::first()).with(Alignment::left()))
+            .with(Modify::new(Columns::last()).with(Alignment::right()))
+            .to_string();
 
-    println!("\n## File stats");
-    println!("{}", file_stats_table);
+        println!("{}", file_stats_table);
+    }
 
-    open::that("http://127.0.0.1:8080/");
+    println!(
+        "{} {}Launching web server... Open http://127.0.0.1:8080/",
+        style("[3/4]").bold().dim(),
+        SERVER
+    );
+
+    // _ = open::that("http://127.0.0.1:8080/");
     web::start_http_server()
 }
 
