@@ -3,11 +3,11 @@ use glob::*;
 // use std::io::Result;
 use std::fs;
 use std::io;
-use std::io::{Read, Write};
+use std::io::Read;
 use std::path::PathBuf;
 use std::process::Command;
 
-use tabled::{object::Columns, Alignment, Modify, Style, Table, TableIteratorExt, Tabled};
+use tabled::{object::Columns, Alignment, Modify, Style, Table, Tabled};
 
 use serde::Serialize;
 
