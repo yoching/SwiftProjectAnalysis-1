@@ -11,6 +11,8 @@ use tabled::{object::Columns, Alignment, Modify, Style, Table, TableIteratorExt,
 
 use serde::Serialize;
 
+use indicatif::ProgressIterator;
+
 mod web;
 
 /// Simple project analyzation
@@ -42,6 +44,7 @@ pub fn run(args: Args) -> io::Result<()> {
     // File stats
     let mut file_stats: Vec<FileAnalysis> = swift_file_paths
         .iter()
+        .progress()
         .map(|path| make_file_stats(path, &root_path))
         .collect();
 
