@@ -56,11 +56,17 @@ pub fn run(args: Args) -> io::Result<()> {
     }
 
     let root_path = args.path.to_string_lossy().to_string();
+    let root_path = if root_path.chars().last().unwrap() == '/' {
+        root_path
+    } else {
+        root_path + "/"
+    };
 
     println!(
-        "{} {}Searching Swift files...",
+        "{} {}Searching Swift files in {}",
         style("[1/4]").bold().dim(),
-        LOOKING_GLASS
+        LOOKING_GLASS,
+        root_path
     );
 
     let swift_file_paths = search_swift_files(&root_path);
