@@ -2,8 +2,6 @@ import * as d3 from "https://cdn.skypack.dev/d3@7";
 
 import * as gridjs from "https://unpkg.com/gridjs/dist/gridjs.umd.js";
 
-console.log("Hello world!!");
-
 d3
     .json("file_stats.json")
     .then((data) => {
@@ -12,6 +10,15 @@ d3
     });
 
 function showTable(data) {
+    console.log(data)
+
+    data.sort(function (a, b) {
+        if (a.length < b.length) return 1;
+        if (a.length > b.length) return -1;
+        return 0;
+    })
+
+    console.log("sorted data")
     console.log(data)
 
     new window.gridjs.Grid(

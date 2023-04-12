@@ -1,6 +1,5 @@
 use clap::Parser;
 use glob::*;
-// use std::io::Result;
 use std::fs;
 use std::io;
 use std::io::Read;
@@ -161,23 +160,3 @@ pub fn get_ast(file: &str) -> io::Result<Vec<u8>> {
         .output()
         .map(|i| i.stdout)
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-
-//     #[test]
-//     fn strip_one_line_comment() {
-//         let swift = "\
-//         // comment
-//         let a = 1
-//         ";
-
-//         assert_eq!(
-//             "\
-//         let a = 1
-//         ",
-//             strip(swift)
-//         );
-//     }
-// }
