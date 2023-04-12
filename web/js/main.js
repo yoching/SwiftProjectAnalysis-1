@@ -14,6 +14,15 @@ d3
 function showTable(data) {
     console.log(data)
 
+    data.sort(function (a, b) {
+        if (a.length < b.length) return 1;
+        if (a.length > b.length) return -1;
+        return 0;
+    })
+
+    console.log("sorted data")
+    console.log(data)
+
     new window.gridjs.Grid(
         {
             columns: [
