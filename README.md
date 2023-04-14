@@ -19,4 +19,4 @@ $ cargo run -- -p path_to_project_root
 ## Motivation
 - I was interested in objectively comparing multiple Swift projects because I've made a lot of iOS apps from scratch during my career.
 - I picked up Rust here only because I wanted to learn the language.
-- During this development, I realized that using [SwiftSyntax](https://github.com/apple/swift-syntax) was more suitable for in-depth analysis using Abstract Syntax Tree. Therefore, I made another project.
+- During this development, I realized that using [SwiftSyntax](https://github.com/apple/swift-syntax) was more suitable for in-depth analysis using Abstract Syntax Tree. Therefore, I made [swift-dependency-analizer](https://github.com/yoching/swift-dependency-analyzer) using SwiftSyntax.
