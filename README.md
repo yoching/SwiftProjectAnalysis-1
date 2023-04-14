@@ -1,4 +1,4 @@
-# Swift Project Analysis - 1
+# Swift Analysis
 
 The bare minimum analysis of Swift projects.
 
