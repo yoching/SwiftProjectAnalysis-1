@@ -1,6 +1,6 @@
 # Swift Analyzer
 
-The bare minimum analyzer of Swift projects.
+The bare minimum analyzer for Swift projects.
 
 <img src="./ProjectAnalysis.png" width=600>
 
